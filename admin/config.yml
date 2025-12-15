@@ -4,8 +4,15 @@ backend:
   branch: main
   auth_endpoint: https://auth.decapcms.org
 
-site_url: https://index-5oz.pages.dev
-display_url: https://index-5oz.pages.dev
+site_url: https://index.ijbmrs.org
+display_url: https://index.ijbmrs.org
+
+# REQUIRED even if you don't upload media
+media_folder: "media"
+public_folder: "/media"
+
+media_library:
+  name: disabled
 
 collections:
   - name: "articles"
@@ -27,4 +34,3 @@ collections:
               - { label: "Year", name: "year", widget: "string" }
               - { label: "DOI", name: "doi", widget: "string" }
               - { label: "PDF URL", name: "pdf", widget: "string" }
-
