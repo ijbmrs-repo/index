@@ -1,0 +1,28 @@
+backend:
+  name: github
+  repo: ijbmrs-repo/index
+  branch: main
+
+media_folder: ""
+public_folder: ""
+
+collections:
+  - name: "articles"
+    label: "Articles"
+    files:
+      - name: "articles"
+        label: "Articles Data"
+        file: "articles.json"
+        fields:
+          - label: "Articles"
+            name: "articles"
+            widget: "list"
+            fields:
+              - { label: "Slug", name: "slug", widget: "string" }
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Authors", name: "authors", widget: "list" }
+              - { label: "Volume", name: "volume", widget: "string" }
+              - { label: "Issue", name: "issue", widget: "string" }
+              - { label: "Year", name: "year", widget: "string" }
+              - { label: "DOI", name: "doi", widget: "string" }
+              - { label: "PDF URL", name: "pdf", widget: "string" }
