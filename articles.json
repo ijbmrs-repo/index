@@ -2,5 +2,19 @@
   "journal": {
     "name": "International Journal of Business and Management Research Studies"
   },
-  "articles": []
+  "articles": [
+    {
+      "slug": "article-01",
+      "title": "Test Article for Automation",
+      "authors": [
+        "John Doe",
+        "Jane Smith"
+      ],
+      "volume": "01",
+      "issue": "01",
+      "year": "2025",
+      "doi": "",
+      "pdf": "https://files.ijbmrs.org/volume-01/issue-01/article-01.pdf"
+    }
+  ]
 }
