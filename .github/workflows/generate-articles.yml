@@ -20,11 +20,14 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Generate article files
+      - name: Generate article files and sitemap
         run: |
           python << 'EOF'
           import json, re
           from pathlib import Path
+          from xml.etree.ElementTree import Element, SubElement, ElementTree
+
+          BASE_URL = "https://index.ijbmrs.org"
 
           body = """${{ github.event.issue.body }}"""
 
@@ -73,6 +76,8 @@ jobs:
           out_dir = Path(f"articles/volume-{volume}/issue-{issue_no}")
           out_dir.mkdir(parents=True, exist_ok=True)
 
+          article_url = f"{BASE_URL}/articles/volume-{volume}/issue-{issue_no}/{slug}.html"
+
           html = f"""<!DOCTYPE html>
           <html lang="en">
           <head>
@@ -95,12 +100,28 @@ jobs:
           </html>"""
 
           (out_dir / f"{slug}.html").write_text(html)
+
+          # ---- Generate sitemap.xml ----
+          urlset = Element("urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
+
+          def add_url(loc):
+              url = SubElement(urlset, "url")
+              SubElement(url, "loc").text = loc
+
+          add_url(f"{BASE_URL}/")
+
+          for a in data["articles"]:
+              add_url(
+                  f"{BASE_URL}/articles/volume-{a['volume']}/issue-{a['issue']}/{a['slug']}.html"
+              )
+
+          ElementTree(urlset).write("sitemap.xml", encoding="utf-8", xml_declaration=True)
           EOF
 
       - name: Commit changes
         run: |
           git config user.name "ijbmrs-bot"
           git config user.email "bot@ijbmrs.org"
-          git add articles.json articles/
-          git commit -m "Add article from issue"
+          git add articles.json articles/ sitemap.xml
+          git commit -m "Add article and update sitemap"
           git push
