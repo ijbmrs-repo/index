@@ -7,12 +7,14 @@ backend:
 site_url: https://index.ijbmrs.org
 display_url: https://index.ijbmrs.org
 
-# REQUIRED even if you don't upload media
+# Required by Decap CMS
 media_folder: "media"
 public_folder: "/media"
 
 media_library:
-  name: disabled
+  name: uploadcare
+  config:
+    publicKey: demopublickey
 
 collections:
   - name: "articles"
