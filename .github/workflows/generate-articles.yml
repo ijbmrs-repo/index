@@ -2,11 +2,10 @@ name: Generate Article from Issue
 
 on:
   issues:
-    types: [opened]
+    types: [opened, reopened]
 
 jobs:
   generate:
-    if: contains(github.event.issue.labels.*.name, 'article')
     runs-on: ubuntu-latest
 
     permissions:
@@ -24,31 +23,37 @@ jobs:
       - name: Generate article files
         run: |
           python << 'EOF'
-          import json, os, re
+          import json, re
           from pathlib import Path
 
-          issue = """${{ github.event.issue.body }}"""
+          body = """${{ github.event.issue.body }}"""
 
-          def field(label):
-              m = re.search(rf"{label}:\s*(.*)", issue)
+          def get_section(title):
+              pattern = rf"### {title}\n+(.+?)(?:\n### |\Z)"
+              m = re.search(pattern, body, re.S)
               return m.group(1).strip() if m else ""
 
-          title = field("Article Title")
-          authors = [a.strip() for a in field("Authors").splitlines() if a.strip()]
-          volume = field("Volume")
-          issue_no = field("Issue")
-          year = field("Publication Year")
-          doi = field("DOI")
-          pdf = field("PDF URL")
+          title = get_section("Article Title")
+          authors = [a.strip() for a in get_section("Authors").splitlines() if a.strip()]
+          volume = get_section("Volume")
+          issue_no = get_section("Issue")
+          year = get_section("Publication Year")
+          doi = get_section("DOI (Zenodo)")
+          pdf = get_section("PDF URL")
 
-          slug_num = 1
           articles_file = Path("articles.json")
-          data = {"articles": []}
 
           if articles_file.exists():
               data = json.loads(articles_file.read_text())
-              slug_num = len(data["articles"]) + 1
+          else:
+              data = {
+                  "journal": {
+                      "name": "International Journal of Business and Management Research Studies"
+                  },
+                  "articles": []
+              }
 
+          slug_num = len(data["articles"]) + 1
           slug = f"article-{slug_num:02d}"
 
           article = {
