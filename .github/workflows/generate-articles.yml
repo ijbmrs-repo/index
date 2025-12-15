@@ -1,0 +1,101 @@
+name: Generate Article from Issue
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  generate:
+    if: contains(github.event.issue.labels.*.name, 'article')
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Generate article files
+        run: |
+          python << 'EOF'
+          import json, os, re
+          from pathlib import Path
+
+          issue = """${{ github.event.issue.body }}"""
+
+          def field(label):
+              m = re.search(rf"{label}:\s*(.*)", issue)
+              return m.group(1).strip() if m else ""
+
+          title = field("Article Title")
+          authors = [a.strip() for a in field("Authors").splitlines() if a.strip()]
+          volume = field("Volume")
+          issue_no = field("Issue")
+          year = field("Publication Year")
+          doi = field("DOI")
+          pdf = field("PDF URL")
+
+          slug_num = 1
+          articles_file = Path("articles.json")
+          data = {"articles": []}
+
+          if articles_file.exists():
+              data = json.loads(articles_file.read_text())
+              slug_num = len(data["articles"]) + 1
+
+          slug = f"article-{slug_num:02d}"
+
+          article = {
+              "slug": slug,
+              "title": title,
+              "authors": authors,
+              "volume": volume,
+              "issue": issue_no,
+              "year": year,
+              "doi": doi,
+              "pdf": pdf
+          }
+
+          data["articles"].append(article)
+          articles_file.write_text(json.dumps(data, indent=2))
+
+          out_dir = Path(f"articles/volume-{volume}/issue-{issue_no}")
+          out_dir.mkdir(parents=True, exist_ok=True)
+
+          html = f"""<!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <title>{title}</title>
+            <meta name="citation_title" content="{title}">
+            {''.join(f'<meta name="citation_author" content="{a}">' for a in authors)}
+            <meta name="citation_journal_title" content="International Journal of Business and Management Research Studies">
+            <meta name="citation_volume" content="{volume}">
+            <meta name="citation_issue" content="{issue_no}">
+            <meta name="citation_publication_date" content="{year}">
+            <meta name="citation_doi" content="{doi}">
+            <meta name="citation_pdf_url" content="{pdf}">
+          </head>
+          <body>
+            <h1>{title}</h1>
+            <p><strong>Authors:</strong> {', '.join(authors)}</p>
+            <p><a href="{pdf}">Download PDF</a></p>
+          </body>
+          </html>"""
+
+          (out_dir / f"{slug}.html").write_text(html)
+          EOF
+
+      - name: Commit changes
+        run: |
+          git config user.name "ijbmrs-bot"
+          git config user.email "bot@ijbmrs.org"
+          git add articles.json articles/
+          git commit -m "Add article from issue"
+          git push
