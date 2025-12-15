@@ -2,14 +2,10 @@ backend:
   name: github
   repo: ijbmrs-repo/index
   branch: main
-  auth_endpoint: https://auth.decapcms.org/auth
+  auth_endpoint: https://auth.decapcms.org
 
-site_url: https://index.ijbmrs.org
-display_url: https://index.ijbmrs.org
-
-
-media_folder: ""
-public_folder: ""
+site_url: https://index-5oz.pages.dev
+display_url: https://index-5oz.pages.dev
 
 collections:
   - name: "articles"
@@ -31,3 +27,4 @@ collections:
               - { label: "Year", name: "year", widget: "string" }
               - { label: "DOI", name: "doi", widget: "string" }
               - { label: "PDF URL", name: "pdf", widget: "string" }
+
