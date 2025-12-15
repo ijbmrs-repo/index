@@ -4,6 +4,10 @@ backend:
   branch: main
   auth_endpoint: https://auth.decapcms.org/auth
 
+site_url: https://index.ijbmrs.org
+display_url: https://index.ijbmrs.org
+
+
 media_folder: ""
 public_folder: ""
 
