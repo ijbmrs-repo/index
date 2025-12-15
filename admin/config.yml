@@ -2,9 +2,10 @@ backend:
   name: github
   repo: ijbmrs-repo/index
   branch: main
+  auth_endpoint: https://auth.decapcms.org
 
-site_url: https://index.ijbmrs.org
-display_url: https://index.ijbmrs.org
+site_url: https://index-5oz.pages.dev
+display_url: https://index-5oz.pages.dev
 
 media_folder: "media"
 public_folder: "/media"
